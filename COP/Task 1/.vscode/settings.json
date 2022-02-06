@@ -1,0 +1,26 @@
+{
+    "C_Cpp.errorSquiggles": "Enabled",
+    "files.associations": {
+        "*.java": "java",
+        "cmath": "cpp",
+        "complex": "cpp",
+        "vector": "cpp",
+        "string": "cpp",
+        "__hash_table": "cpp",
+        "__split_buffer": "cpp",
+        "array": "cpp",
+        "bitset": "cpp",
+        "deque": "cpp",
+        "initializer_list": "cpp",
+        "iterator": "cpp",
+        "queue": "cpp",
+        "random": "cpp",
+        "stack": "cpp",
+        "string_view": "cpp",
+        "unordered_map": "cpp",
+        "utility": "cpp",
+        "regex": "cpp",
+        "valarray": "cpp",
+        "iostream": "cpp"
+    }
+}

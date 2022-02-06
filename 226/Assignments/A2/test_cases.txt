@@ -1,0 +1,65 @@
+size(node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty)),N).
+N = 6.
+
+height(node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty)),N).
+N = 3.
+
+preorder(node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty)),L).
+L = [10, 5, 3, 6, 15, 12] .
+
+inorder(node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty)),L).
+L = [3, 5, 6, 10, 12, 15] .
+
+postorder(node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty)),L).
+L = [3, 6, 5, 12, 15, 10] .
+
+trPreorder(node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty)),L).
+L = [10, 5, 3, 6, 15, 12] .
+
+trInorder(node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty)),L).
+L = [3, 5, 6, 10, 12, 15] .
+
+trPostorder(node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty)),L).
+L = [3, 6, 5, 12, 15, 10] .
+
+eulerTour(node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty)),L).
+L = [10, 5, 3, 3, 3, 5, 6, 6, 6, 5, 10, 15, 12, 12, 12, 15, 15, 10] .
+
+preET(node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty)),L).
+L = [10, 5, 3, 6, 15, 12] .
+
+inET(node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty)),L).
+L = [3, 5, 6, 10, 12, 15] .
+
+postET(node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty)),L).
+L = [3, 6, 5, 12, 15, 10] .
+
+toString(node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty)),S).
+S = "(10, (5, (3, (), ()), (6, (), ())), (15, (12, (), ()), ()))" .
+
+isBalanced(node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty))).
+true .
+
+isBalanced(node(10,node(5,node(3,node(2,empty,empty),empty),node(6,empty,empty)),node(15,empty,empty))).
+false .
+
+isBST(node(10,node(5,node(7,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty))).
+false.
+
+isBST(node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty))).
+true .
+
+makeBST([3, 5, 6, 10, 12, 15],BST).
+BST = node(10, node(5, node(3, empty, empty), node(6, empty, empty)), node(15, node(12, empty, empty), empty)) .
+
+lookup(3,node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty))).
+true .
+
+lookup(14,node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty))).
+false .
+
+insert(8,node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty)),BST2).
+BST2 = node(10, node(5, node(3, empty, empty), node(6, empty, node(8, empty, empty))), node(15, node(12, empty, empty), empty)) .
+
+delete(10,node(10,node(5,node(3,empty,empty),node(6,empty,empty)),node(15,node(12,empty,empty),empty)),BST2).
+BST2 = node(12, node(5, node(3, empty, empty), node(6, empty, empty)), node(15, empty, empty)) .
