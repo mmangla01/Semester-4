@@ -1,0 +1,251 @@
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.NUMERIC_STD.all;
+use IEEE.std_logic_unsigned.all;
+use work.myTypes.all;
+entity fsm is
+    port(
+        branch: in std_logic;
+        DPoprscr:in DP_operand_src_type;
+        instructionclass:in instr_class_type;
+        instrtype: in optype;
+        offstsgn: in DT_offset_sign_type;
+        ldrstrtype: in load_store_type;
+        clock:in std_logic;
+        opcode:out optype;
+        PW,IorD,MW,IW,DW,M2R,Rsrc,AW,RW,Asrc1,Fset,ReW,BW :out std_logic;
+        Asrc2: out std_logic_vector(1 downto 0);
+        carryin:out std_logic);
+end fsm;
+architecture lmm of fsm is
+signal fsm: std_logic_vector(3 downto 0):=(others=>'0');
+    begin
+        process(clock)
+        begin
+        if(rising_edge(clock)) then
+            if(fsm="0000") then
+                fsm<="0001";
+                Asrc1<='0';
+                Asrc2<="01";
+                IorD<='0';
+                IW<='1';
+                opcode<=add;
+                PW<='1';
+                BW<='0';
+                MW<='0';
+                DW<='0';
+                M2R<='0';
+                Rsrc<='0';
+                AW<='0';
+                RW<='0';
+                Fset<='0';
+                ReW<='0';
+                carryin<='0';
+            elsif(fsm="0001" and instructionclass=DP) then 
+                fsm<="0010";
+                IW<='0';
+                IorD<='0';
+                Rsrc<='0';
+                AW<='1';
+                BW<='1';
+                PW<='0';
+                MW<='0';
+                DW<='0';
+                M2R<='0';
+                RW<='0';
+                Asrc1<='0';
+                Fset<='0';
+                ReW<='0';
+                Asrc2<="00";
+                carryin<='0';
+            elsif(fsm="0001" and instructionclass=DT) then
+                fsm<="0011";
+                Rsrc<='1';
+                AW<='1';
+                BW<='1';
+                PW<='0';
+                IorD<='0';
+                MW<='0';
+                IW<='0';
+                DW<='0';
+                M2R<='0';
+                RW<='0';
+                Asrc1<='0';
+                Fset<='0';
+                ReW<='0';
+                Asrc2<="00";
+                carryin<='0';
+            elsif(fsm="0001") then
+                fsm<="0100";
+                Rsrc<='1';
+                AW<='1';
+                BW<='1';
+                PW<='0';
+                IorD<='0';
+                MW<='0';
+                IW<='0';
+                DW<='0';
+                M2R<='0';
+                RW<='0';
+                Asrc1<='0';
+                Fset<='0';
+                ReW<='0';
+                Asrc2<="00";
+                carryin<='0';
+            elsif(fsm="0010") then
+                fsm<="0101";
+                ReW<='1';
+                Asrc1<='1';
+                opcode<=instrtype;
+                Fset<='1';
+                if(DPoprscr=reg) then
+                    Asrc2<="00";
+                else Asrc2<="10";
+                end if;
+                BW<='0';
+                PW<='0';
+                IorD<='0';
+                MW<='0';
+                IW<='0';
+                DW<='0';
+                M2R<='0';
+                Rsrc<='0';
+                AW<='0';
+                RW<='0';
+                carryin<='0';
+            elsif(fsm<="0011" and ldrstrtype=load) then
+                fsm<="0111";
+                Asrc1<='1';
+                Rsrc<='1';
+                Asrc2<="10";
+                if(offstsgn=minus) then
+                    opcode<=sub;
+                else opcode<=add;
+                end if;
+                ReW<='1';
+                BW<='0';
+                PW<='0';
+                IorD<='0';
+                MW<='0';
+                IW<='0';
+                DW<='0';
+                M2R<='0';
+                AW<='0';
+                RW<='0';
+                Fset<='0';
+                Asrc2<="00";
+                carryin<='0';
+            elsif(fsm<="0011" and ldrstrtype=store) then
+                Asrc1<='1';
+                Asrc2<="10";
+                Rsrc<='1';
+                fsm<="0110";
+                if(offstsgn=minus) then
+                    opcode<=sub;
+                else opcode<=add;
+                end if;
+                ReW<='1';
+                BW<='0';
+                PW<='0';
+                IorD<='0';
+                MW<='0';
+                IW<='0';
+                DW<='0';
+                M2R<='0';
+                AW<='0';
+                RW<='0';
+                Fset<='0';
+                carryin<='0';
+            elsif(fsm<="0110") then
+                fsm<="0000";
+                MW<='1';
+                IorD<='1';
+                Rsrc<='1';
+                BW<='0';
+                PW<='0';
+                IW<='0';
+                DW<='0';
+                M2R<='0';
+                AW<='0';
+                RW<='0';
+                Asrc1<='0';
+                Fset<='0';
+                ReW<='0';
+                Asrc2<="00";
+                carryin<='0';
+            elsif(fsm="0101") then 
+                fsm<="0000";
+                M2R<='0';
+                RW<='1';
+                BW<='0';
+                PW<='0';
+                IorD<='0';
+                MW<='0';
+                IW<='0';
+                DW<='0';
+                Rsrc<='0';
+                AW<='0';
+                Asrc1<='0';
+                Fset<='0';
+                ReW<='0';
+                Asrc2<="00";
+                carryin<='0';
+            elsif(fsm="0111") then
+                fsm<="1000";
+                DW<='1';
+                IorD<='1';
+                Rsrc<='1';
+                BW<='0';
+                PW<='0';
+                MW<='0';
+                IW<='0';
+                M2R<='0';
+                AW<='0';
+                RW<='0';
+                Asrc1<='0';
+                Fset<='0';
+                ReW<='0';
+                Asrc2<="00";
+                carryin<='0';
+            elsif(fsm="1000") then
+                fsm<="0000";
+                RW<='1';
+                Rsrc<='1';
+                M2R<='1';
+
+                BW<='0';
+                PW<='0';
+                IorD<='0';
+                MW<='0';
+                IW<='0';
+                DW<='0';
+                AW<='0';
+                Asrc1<='0';
+                Fset<='0';
+                ReW<='0';
+                Asrc2<="00";
+                carryin<='0';
+            elsif(fsm="0100") then
+                fsm<="0000";
+                opcode<=adc;
+                Asrc1<='0';
+                Rsrc<='1';
+                Asrc2<="11";
+                PW<=branch;
+                carryin<='1';
+
+                BW<='0';
+                PW<='0';
+                IorD<='0';
+                MW<='0';
+                IW<='0';
+                DW<='0';
+                M2R<='0';
+                AW<='0';
+                RW<='0';
+                Fset<='0';
+                ReW<='0';
+            end if;
+        end if;
+    end process;
+end lmm;

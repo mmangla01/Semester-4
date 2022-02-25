@@ -1,23 +1,23 @@
-UPDATED : 18/02
+UPDATED : 22/02
 
-COL226					(hr)
+COL226	22/02				(1hr)
 		QUIZ (19/03)		(—)
 		A2 (—)			(—)
 
-COL216					(hr)
-		LA2 (09/02)		(—)
-		QUIZ (10/02)		(—)
+COL216	21/02				(1.5hr)
+		LA2 (25/02)		(—)
+		QUIZ (-)		(—)
 		
 COP290	First Assignment
 		part3 (15/02-28/02)	(—)
 		21/01				(1hr)
 
-ELL205					(hr)
+ELL205	22/02				(1hr)
 		QUIZ (23/02)		(—)
 		MATLAB			(—)
 		
 
-HUL242					(hr)
+HUL242	03/02 07/02 07/02 10/02 21/01 21/02				(8hr)
 		Reading Material	(—)
 
 ESL729					(hr)
