@@ -7,17 +7,16 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 -- entity definition
 entity FiniteStateMachine is
     port(
-        branch_cond: std_logic;                  -- clock and the boolean for condition being true
+        clock, branch_cond: in std_logic;               -- clock and the boolean for condition being true
         decoded_dpos: in DP_operand_src_type;           -- source of the operand in DP instruction
         decoded_insc: in instr_class_type;              -- instruction class
         decoded_opc: in optype;                         -- the operation code in case of DP
         decoded_dtos: in DT_offset_sign_type;           -- the sign of offset in DT instruction
         decoded_load_store: in load_store_type;         -- load or store
-        clock: in std_logic;
         -- control signals 
+        PW, IorD, MW, IW, DW, M2R, Rsrc, BW, RW, AW, Asrc1, F_set, ReW: out std_logic;
+        Asrc2: out std_logic_vector(1 downto 0);
         alu_opc: out optype                             -- the operation that is to be performed by ALU
-        PW, IorD, MW, IW, DW, M2R, Rsrc, AW, RW, Asrc1, F_set, ReW, BW: out std_logic;
-        Asrc2: out std_logic_vector(1 downto 0)
     );
 end FiniteStateMachine;
 -- implementing the architecture of FSM
@@ -214,17 +213,3 @@ begin
         end if;
     end process;
 end implement_fsm;
-            
-
-
-            
-
-
-
-
-
-
-
-
-
-
