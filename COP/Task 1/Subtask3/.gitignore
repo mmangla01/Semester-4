@@ -1,0 +1,7 @@
+audios
+mfcc_features
+*.zip
+*.txt
+*.csv
+*.so
+*.o

@@ -5,11 +5,11 @@ COL226	22/02 24/02 25/02 03/03 04/03 05/03 				(6hr)
 		A3 ()			(—)
 
 COL216	03/03 07/03				(3hr)
-		LA2 (05/03)		(—)
+		LA4 ()		(—)
 		QUIZ (17/03)		(—)
 		
-COP290	First Assignment
-		part3 ()	(—)
+COP290	Second Assignment
+		Subtask1 ()	(—)
 		21/01				(1hr)
 		makefile
 

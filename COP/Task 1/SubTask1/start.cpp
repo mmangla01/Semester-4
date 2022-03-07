@@ -155,13 +155,8 @@ vector<vector<float> > readMatrix(char* filename){
     if(matrixFile.is_open()){                       // if the file is opened
         getline(matrixFile,line);                   // read the line
         int A = stoi(line);                         // first line contains the number of columns
-        // if(line.substr(line.size()-1)=="\n"){
-        //     line.pop_back();
-        // }
-        // if(to_string(A)!=line){ cerr << "ERROR: Input column not int";exit(1);}
         getline(matrixFile,line);                   // reads the second line
         int B = stoi(line);                         // second line contains the number of rows
-        // if(to_string(B)!=line){ cerr << "ERROR: Input row not int";exit(1);}
         vector<vector<float> > Matrix(B,vector<float> (A,0.0f));    // matrix to be returned
         for(int i=0;i<A;i++){                       
             for(int j=0;j<B;j++){
@@ -187,7 +182,6 @@ vector<float> readVector(char* filename){
     if(vectorFile.is_open()){                       // if the file is opened
         getline(vectorFile,line);                   // read the line
         int vlen = stoi(line);                      // first line stores the length of the vector
-        // if(to_string(vlen)!=line){ cerr << "ERROR: Input length not int";exit(1);}
         int countLines=0;                           // this is the counter for the nuber of lines in the file except the first one
         while(getline(vectorFile,line)){
             countLines++;
