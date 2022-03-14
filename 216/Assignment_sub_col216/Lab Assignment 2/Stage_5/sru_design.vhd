@@ -5,14 +5,9 @@ use IEEE.numeric_std.all;
 use IEEE.std_logic_1164.all;
 use IEEE.std_logic_unsigned.all;
 -- entity definition 
-
-
-
-
-
 entity ShiftRotateUnit is 
     port (
-        clock, in_shift_carry: in std_logic;                  -- clock
+        clock: in std_logic;                  -- clock
         shift_amount: in std_logic_vector(4 downto 0);
         data: in word;
         shift_type: in Shift_rotate_type;
@@ -70,7 +65,7 @@ architecture implement_sru of ShiftRotateUnit is
     signal carry : std_logic_vector(4 downto 0);
     signal data1, data2, data3, data4, data5: word;
 begin 
-    shift1 : sru1 port map (shift_amount(0), in_shift_carry, data, shift_type, carry(0), data1);
+    shift1 : sru1 port map (shift_amount(0), '0', data, shift_type, carry(0), data1);
     shift2 : sru2 port map (shift_amount(1), carry(0), data1, shift_type, carry(1), data2);
     shift4 : sru4 port map (shift_amount(2), carry(1), data2, shift_type, carry(2), data3);
     shift8 : sru8 port map (shift_amount(3), carry(2), data3, shift_type, carry(3), data4);

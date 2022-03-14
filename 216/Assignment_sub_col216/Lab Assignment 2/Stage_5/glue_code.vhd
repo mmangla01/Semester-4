@@ -93,12 +93,12 @@ architecture implement_gc of GlueCode is
     end component;
     component ShiftRotateUnit is 
         port (
-            clock, in_shift_carry: in std_logic;                  -- clock
-            shift_amount: in std_logic_vector(4 downto 0);
-            data: in word;
-            shift_type: in Shift_rotate_type;
-            out_shift_carry: out std_logic;
-            shifted_data: out word
+            clock: in std_logic;                  -- clock
+            shift_amount: in std_logic_vector(4 downto 0);  -- shift amount
+            data: in word;                          -- the data that is to be shifted
+            shift_type: in Shift_rotate_type;       -- type of shift
+            out_shift_carry: out std_logic;         -- carry out from shifter
+            shifted_data: out word                  -- shifted data
         );
     end component;
     -- internal signals that connect different components
@@ -135,7 +135,7 @@ begin
     fsm: FiniteStateMachine port map(clock, output_bool, decoded_dpos, decoded_insc, decoded_opc, 
         decoded_dtos, decoded_load_store, PW, IorD, MW, IW, DW, M2R, Rsrc1, BW, RW, AW, Asrc1, F_set, 
         ReW, SAW, SDW, SReW, Rsrc2, Asrc2, alu_opc);
-    sru: ShiftRotateUnit port map(clock, C, shift_amount, in_data_sru, shift_type, out_shift_carry, 
+    sru: ShiftRotateUnit port map(clock, shift_amount, in_data_sru, shift_type, out_shift_carry, 
         shifted_data);
 
     -- now we control the components by the control signals that we get from the FSM
@@ -144,31 +144,40 @@ begin
             SReW, SRES)
     begin
         if(decoded_insc = DP and decoded_dpos = imm) then
-            -- in_rev <= x"000000" & IR(7 downto 0);
-            -- in_data_sru <= out_rev;
+            -- data in last 8 bits is to be shifted
             in_data_sru <= x"000000" & IR(7 downto 0);
-            -- rotate left by twice the 4 bit number IR(11 downto 8)
-            shift_amount <= IR(11 downto 8) & '0' ;
+            -- rotate right by twice the 4 bit number IR(11 downto 8)
+            shift_amount <= IR(11 downto 8) & '0';
             shift_type <= RORR;
-            is_shift <= '1';
-        elsif((decoded_insc = DT and IR(25) = '1') or (decoded_insc = DP and decoded_dpos = reg)) then
-            in_data_sru <= SD;
-            is_shift <= '1';
-            if(IR(4)='0') then
-                shift_amount <= IR(11 downto 7);
-            else
-                shift_amount <= SA(4 downto 0);
+            -- is_shift
+            if(IR(11 downto 8)="00000") then is_shift <='0';
+            else is_shift <= '1';
             end if;
-            shift_type <= decoded_st;
+        elsif((decoded_insc = DT and IR(25) = '1') or (decoded_insc = DP and decoded_dpos = reg)) then
+            in_data_sru <= SD; -- input from SD register
+            if(IR(4)='0') then
+                shift_amount <= IR(11 downto 7); -- if the amount is const
+                -- is_shift
+                if(IR(11 downto 7)="00000") then is_shift <='0';
+                else is_shift <= '1';
+                end if;
+            else
+                shift_amount <= SA(4 downto 0); -- if the amount is in register
+                -- is_shift
+                if(SA(4 downto 0)="00000") then is_shift <='0';
+                else is_shift <= '1';
+                end if;
+            end if;
+            shift_type <= decoded_st;           -- decoded type
         else 
-            in_data_sru <= x"00000" & IR(11 downto 0);
-            shift_type <= none;
-            is_shift <= '0';
+            in_data_sru <= x"00000" & IR(11 downto 0);  -- input data is immediate offset
+            shift_type <= none;                 -- shift is none
+            is_shift <= '0'; -- is shift 
         end if;
-
+        
         -- writing the registers when write enable is 1
         if(IW = '1') then IR <= output_from_mem; -- Instruction Register
-        end if;
+        is_shift <= '0'; end if;
         if(DW = '1') then DR <= output_from_mem; -- Data Register
         end if;
         if(AW = '1') then A <= reg1data;         -- A Register
@@ -177,11 +186,11 @@ begin
         end if;
         if(ReW = '1') then RES <= alu_result;    -- Result Register
         end if;
-        if(SAW = '1') then SA <= reg1data;
+        if(SAW = '1') then SA <= reg1data;      -- write the shift amount to SA
         end if;
-        if(SDW = '1') then SD <= reg2data;
+        if(SDW = '1') then SD <= reg2data;      -- write the shift data in SD
         end if;
-        if(SReW = '1') then SRES <= shifted_data;
+        if(SReW = '1') then SRES <= shifted_data;   -- write the shift result in SRES
         end if;
 
         if(PW = '1') then   -- if the PC write is 1 then input is given to PC 
@@ -198,7 +207,7 @@ begin
         else 
             read_address_2 <= IR(15 downto 12);
         end if;
-        if(Rsrc1 = '0') then
+        if(Rsrc1 = '0') then -- implementing the MUX that checks the input read address in register
             read_address_1 <= IR(19 downto 16);
         else
             read_address_1 <= IR(11 downto 8);

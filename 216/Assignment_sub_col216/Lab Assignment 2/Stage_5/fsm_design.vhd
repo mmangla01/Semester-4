@@ -29,13 +29,13 @@ begin
         -- we update the control signals according to the state
         if(rising_edge(clock)) then                     -- on rising edge 
             if(next_state="0000") then          -- if on state 0 then
-                next_state <= "0001";-- next state
-                PW <= '1';          -- write PC+4 in PC
-                IW <= '1';          -- write in instruction register
-                alu_opc <= add;     -- add operation in ALU
-                Asrc1 <= '0';       -- PC as operand 1
-                Asrc2 <= "01";      --  4 as operand 2
-                IorD <= '0';
+                next_state <= "0001";           -- next state
+                PW <= '1';                      -- write PC+4 in PC
+                IW <= '1';                      -- write in instruction register
+                alu_opc <= add;                 -- add operation in ALU
+                Asrc1 <= '0';                   -- PC as operand 1
+                Asrc2 <= "01";                  --  4 as operand 2
+                IorD <= '0';                    -- reading the instruction
                 -- else 0
                 SDW <= '0';
                 MW <= '0';
@@ -50,21 +50,21 @@ begin
                 Rsrc2 <= '0';
                 F_set <= '0';
                 SReW <= '0';
-            elsif(next_state="0001") then          -- if on state 1 then
-                if(decoded_insc = BRN) then
+            elsif(next_state="0001") then       -- if on state 1 then
+                if(decoded_insc = BRN) then     -- if branch instruction
                     next_state <= "0010";
                     Rsrc2 <= '0';
-                else
+                else                            -- else 
                     next_state <= "0011";
-                    if(decoded_insc=DP) then 
-                        Rsrc2 <= '0';
+                    if(decoded_insc=DP) then    -- in case of DP we read 3 downto 0
+                        Rsrc2 <= '0';          
                     else
-                        Rsrc2 <= '1'; -- ???????????????????????????
+                        Rsrc2 <= '1';            -- read 15 downto 12
                     end if;
                 end if;
                 AW <= '1';      -- write in A
                 BW <= '1';      -- write in B
-                Rsrc1 <= '0';       
+                Rsrc1 <= '0';   -- read 19 downto 16
                 -- else 0
                 PW <= '0';   
                 SDW <= '0';
@@ -89,7 +89,7 @@ begin
                 end if;
                 alu_opc <= adc;         -- add with carry is to be performed 
                 Asrc2 <= "10";      -- second operand is offset
-                Asrc1 <= '0';
+                Asrc1 <= '0';       -- choose pc as first operand
                 -- else 0
                 Rsrc2 <= '0';        
                 Rsrc1 <= '0';
@@ -108,15 +108,15 @@ begin
                 SReW <= '0';
             elsif (next_state = "0011") then
                 next_state <= "0100";-- next state
-                SAW <= '1';
-                SDW <= '1';
-                Rsrc1 <= '1';
-                Rsrc2 <= '0';
+                SAW <= '1';             -- write the SA register
+                SDW <= '1';             -- write the SB register
+                Rsrc1 <= '1';           -- read the 11 downto 8
+                Rsrc2 <= '0';           -- read 3 downto 0 
                 -- else 0
-                PW <= '0';          -- write PC+4 in PC
-                IW <= '0';          -- write in instruction register
-                Asrc1 <= '0';       -- PC as operand 1
-                Asrc2 <= "00";      --  4 as operand 2
+                PW <= '0';          
+                IW <= '0';          
+                Asrc1 <= '0';       
+                Asrc2 <= "00";      
                 MW <= '0';
                 DW <= '0';
                 BW <= '0';
@@ -128,17 +128,17 @@ begin
                 F_set <= '0';
                 SReW <= '0';
             elsif (next_state = "0100") then
-                if(decoded_insc = DP) then 
+                if(decoded_insc = DP) then  -- next state
                     next_state <= "0101";
                 else 
                     next_state <= "0110";
                 end if;
-                SReW <= '1';
+                SReW <= '1';        -- write in shift result register
                 -- else 0
-                PW <= '0';          -- write PC+4 in PC
-                IW <= '0';          -- write in instruction register
-                Asrc1 <= '0';       -- PC as operand 1
-                Asrc2 <= "00";      --  4 as operand 2
+                PW <= '0';          
+                IW <= '0';          
+                Asrc1 <= '0';       
+                Asrc2 <= "00";     
                 MW <= '0';
                 SAW <= '0';
                 SDW <= '0';
@@ -152,25 +152,15 @@ begin
                 Rsrc1 <= '0';
                 Rsrc2 <= '0';
                 F_set <= '0';
-            elsif(next_state="0101") then          -- if on state 2 then
+            elsif(next_state="0101") then          -- if on state 5 then
                 next_state <= "0111"; -- next state 
                 Asrc1 <= '1';   -- A as operand 1
-                F_set <= '1';
+                F_set <= '1';   -- set flags
                 ReW <= '1';     -- write in RES 
-                -- if(decoded_dpos = imm) then 
-                --     Asrc2 <= "10";
-                -- else
-                --     Asrc2 <= "00";
-                -- end if;
-                Asrc2 <= "00";
+                Asrc2 <= "00";  -- second operand is result of Shifter
                 -- in this case the alu operation is same that is decoded from the instruction
                 alu_opc <= decoded_opc; 
                 -- else 0
-                -- if(decoded_dpos = reg) then -- check for the source of the operand 2
-                --     Asrc2 <= "00";
-                -- else
-                --     Asrc2 <= "10";
-                -- end if;
                 PW <= '0';
                 IW <= '0';
                 MW <= '0';
@@ -185,9 +175,9 @@ begin
                 Rsrc2 <= '0';
                 SAW <= '0';
                 SReW <= '0';
-            elsif(next_state="0110") then          -- if on state 3 then
+            elsif(next_state="0110") then          -- if on state 6 then
                 Asrc1 <= '1';       -- A as operand 1
-                ReW <= '1';     -- write in RES 
+                ReW <= '1';         -- write in RES 
                 Asrc2 <= "00";      -- second operand as the offset in instruction
                 if(decoded_dtos = minus) then   -- check the sign for offset
                     alu_opc <= sub;
@@ -215,14 +205,14 @@ begin
                 AW <= '0';
                 F_set <= '0';
                 SReW <= '0';
-            elsif(next_state="0111")then          -- if on state 5 then
+            elsif(next_state="0111")then          -- if on state 7 then
                 next_state <= "0000";       -- next state
                 if(decoded_opc = cmp or decoded_opc = cmn or decoded_opc = tst or decoded_opc = teq) then
                     RW <= '0';
                 else 
                     RW <= '1';               -- write the output to the register
                 end if;
-                M2R <= '0';
+                M2R <= '0';                 -- writing from result
                 -- else 0
                 PW <= '0';
                 SDW <= '0';
@@ -240,12 +230,12 @@ begin
                 F_set <= '0';
                 ReW <= '0';
                 Asrc2 <= "00";
-            elsif(next_state="1000") then          -- if on state 0 then
+            elsif(next_state="1000") then          -- if on state 8 then
                 next_state <= "0000";   -- next state
                 IorD <= '1';    -- input the data memory address 
                 MW <= '1';      -- write in mem
                 -- else 0
-                Rsrc2 <= '0';    -- read address 2 in register file
+                Rsrc2 <= '0';    
                 PW <= '0';
                 Rsrc1 <= '0';
                 SReW <= '0';
@@ -261,11 +251,12 @@ begin
                 F_set <= '0';
                 ReW <= '0';
                 Asrc2 <= "00";
-            elsif(next_state="1001") then          -- if on state 0 then
+            elsif(next_state="1001") then          -- if on state 9 then
                 next_state <= "1010";   -- next state
                 IorD <= '1';    -- input the data memory address 
                 DW <= '1';      -- write in data register
-                Rsrc2 <= '0';    -- read address 2 in register file
+                Rsrc2 <= '0';   -- read address 2 in register file
+                -- else 0
                 PW <= '0';
                 MW <= '0';
                 Rsrc1 <= '0';
@@ -281,12 +272,12 @@ begin
                 F_set <= '0';
                 ReW <= '0';
                 Asrc2 <= "00";
-            elsif (next_state="1010") then          -- if on state 0 then 
+            elsif (next_state="1010") then          -- if on state 10 then 
                 next_state <= "0000";   -- next state
                 M2R <= '1';     -- the MUX m2r
                 RW <= '1';      -- write in register file
                 -- else 0
-                Rsrc2 <= '0';    -- read address 2 in register file
+                Rsrc2 <= '0';    
                 Rsrc1 <= '0';
                 SReW <= '0';
                 SAW <= '0';
