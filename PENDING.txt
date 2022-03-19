@@ -1,4 +1,4 @@
-UPDATED : 07/03
+UPDATED : 14/03
 
 COL226	22/02 24/02 25/02 03/03 04/03 05/03 08/03 10/03 11/03				(9hr)
 		QUIZ (19/03)		(—)
@@ -17,7 +17,34 @@ ELL205				(hr)
 		QUIZ (16/03)		(—)
 		MATLAB			(—)
 		
-HUL242	03/02 07/02 07/02 10/02 21/01 21/02 24/02 03/03 07/03 07/03	10/03			(15hr)
+HUL242	03/02 07/02 07/02 10/02 21/01 21/02 24/02 03/03 07/03 07/03			(13.5)	
+		10/03 12/03 12/03 14/03 14/03			(7.5hr)
 		Reading Material	(—)
 
+--------------------------------------------------------------------
+15 March - COP290 Task 2 release
+15 March - ESL729 Quiz				(online) (3:30pm)
+15 March - SAC TT hall meet 		(5:30pm) 
+--------------------------------------------------------------------
+16 March - ELL205 offline lecture 	(LH 121) (9:00am - 10:00am)
+16 March - ELL205 offline tutorial 	(LH 310) (2:00pm - 3:00pm)
+16 March - ELL205 Quiz				(LH 502-504) (7:15pm - 7:55pm)
+--------------------------------------------------------------------
+17 March - COL216 Quiz				(LH108) (9:30am - 10:15am)
+17 March - COL216 offline lecture	(LH108) (10:15am - 11:00am)
+--------------------------------------------------------------------
+18 March - Holi						(Hopefully no deadline or quiz)
+--------------------------------------------------------------------
+19 March - HUL242 Quiz				(8:00am)
+19 March - COL226 Quiz				(11:00pm)
+19 March - COL216 LA2_S6 deadline	(11:59pm)
+--------------------------------------------------------------------
 
+
+to do with deadline
+ESL slideshow - 15 March 3:30pm
+ELL tutorials - 16 March 2:00pm
+216 lectures  - 17 March 9:30am
+HUL prepifany - 19 March 8:00am
+226 lectures  - 19 March 11:00pm
+216 assignment- 19 March 11:59pm
