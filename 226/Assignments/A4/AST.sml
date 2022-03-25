@@ -1,4 +1,15 @@
-structure AST = 
+(* 
+signature AST = 
+sig 
+type AST
+val add_in_ht: string list * string -> unit
+val find_in_ht: string -> string option
+val checklist: string list -> string option
+val error: string -> unit
+end 
+*)
+
+structure AST= 
 struct 
 datatype AST = AST of AST 
     | LT  of AST * AST

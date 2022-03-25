@@ -1,2 +1,5 @@
 *.zip
 Evaluator-TypeChecker-in-SML-main
+.cm
+*.yacc.*
+*.lex.*

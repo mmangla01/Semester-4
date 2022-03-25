@@ -1,0 +1,2 @@
+all:
+	sml run.sml

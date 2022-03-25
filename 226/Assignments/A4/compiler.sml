@@ -1,10 +1,8 @@
 
-structure While :
-sig val compile : string -> AST.AST
-end =
+structure While =
 struct
 exception WhileError;
-fun compile (fileName) =
+fun compile (fileName:string): AST.AST =
     let val inStream =  TextIO.openIn fileName;
         val grab : int -> string = fn
             n => if TextIO.endOfStream inStream
