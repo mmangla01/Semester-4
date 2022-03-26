@@ -30,18 +30,85 @@ datatype AST = AST of AST
     | SET of string * AST
     | READ of string
     | WRITE of AST
-    | ITE of AST * AST list * AST list
-    | WH of AST * AST list
-    | PROG of string * ((string list * string) list * AST list)
+    | ITE of AST * AST * AST 
+    | WH of AST * AST 
+    | PROG of string * ((string list * string) list * AST)
     | IDEN of string
     | BOOL of bool
     | INT of int 
-val TableSize = 500;
+	| SEQ of AST list
+(* ------------------------------------------------------------------------------------ *)
+    | AST_part_2 
+    | LT_part_2 
+    | LEQ_part_2 
+    | EQ_part_2 
+    | GT_part_2 
+    | GEQ_part_2 
+    | NEQ_part_2 
+    | PLUS_part_2 
+    | MINUS_part_2 
+    | NEGATIVE_part_2 
+    | TIMES_part_2 
+    | DIV_part_2 
+    | MOD_part_2 
+    | OR_part_2 
+    | NOT_part_2 
+    | AND_part_2 
+    | SET_part_2 
+    | READ_part_2 
+    | WRITE_part_2 
+    | ITE_part_2 
+    | WH_part_2 
+	| SEQ_part_2 of AST list
+	| INT_part_2 of int 
+	| BOOL_part_2 of 
+	| IDEN_part_2 of string
+	| StoAST of string
+	| ItoAST of int
+	| BtoAST of bool
+	| SEQtoAST of AST list
+(* val TableSize = 500;
 val HashFactor = 5;
 val HashFunction = fn s =>
         List.foldr (fn (c,v) => (v*HashFactor+(ord c)) mod TableSize) 0 (explode s);
-val HashTable = Array.array (TableSize,[("","")]) : (string * string) list array;
-fun add_in_ht ([],_) = ()
+val HashTable = Array.array (TableSize,[("","")]) : (string * string) list array; *)
+val symboltable:(string * string * int) list ref = ref [];
+fun add_in_list ([],_) = ()
+	| add_in_list (head::tail, typ) = 
+		let 
+			val n = List.length(!symboltable)
+		in 
+			(symboltable := (head, typ, n+1)::(!symboltable);
+			add_in_list (tail, typ))
+		end 
+fun find_in_list s = 
+	let 
+		val b = !symboltable
+		fun findInList ((key,typ,a)::tail) = if key=s then SOME (typ, a) else findInList tail
+		  | findInList ([]) = NONE
+	in 
+		findInList(b)
+	end
+fun check_in_list ([]) = NONE
+	| check_in_list (x::xs) =
+		let 
+			val f = find_in_list(x)
+		in 
+			case f of SOME t => SOME x 
+			| NONE => check_in_list xs
+		end
+		
+fun error(msg) = 
+	let
+		val _ = print(msg)
+		val _ = print("\n")
+	in 
+		OS.Process.exit(OS.Process.success)
+	end 
+end
+
+
+(* fun add_in_ht ([],_) = ()
   | add_in_ht (head::tail,typ) =
   	let
   		val i = HashFunction head
@@ -63,13 +130,4 @@ fun checklist ([]) = NONE
 		val f = find_in_ht (x) 
 	in 
 		case f of SOME t => SOME x | NONE => checklist (xs)
-	end 
-fun error(msg) = 
-	let
-		val _ = print(msg)
-		val _ = print("\n")
-	in 
-		OS.Process.exit(OS.Process.success)
-	end 
-end
-
+	end  *)

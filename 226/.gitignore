@@ -3,3 +3,4 @@ Evaluator-TypeChecker-in-SML-main
 .cm
 *.yacc.*
 *.lex.*
+Evaluate-reedam.sml

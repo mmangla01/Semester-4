@@ -2,6 +2,7 @@
 Library
     structure While
 is
+    stack.sml
     AST.sml 
     while_ast.lex 
     while_ast.yacc:MLYacc 

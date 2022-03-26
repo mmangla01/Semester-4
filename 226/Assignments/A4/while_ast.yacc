@@ -9,8 +9,8 @@ open AST
     | LEQ | EQ | GEQ | NEQ | PLUS | MINUS | TIMES | DIV | MOD | NUM of int 
     | VAR of string | EOF | VARI
 
-%nonterm Program of AST | Block of (string list * string) list * AST list | DeclarationSeq of (string list * string) list 
-        | Declaration of string list * string | VariableList of string list | CommandSeq of AST list | Command of AST 
+%nonterm Program of AST | Block of (string list * string) list * AST | DeclarationSeq of (string list * string) list 
+        | Declaration of string list * string | VariableList of string list | CommandSeq of AST | Command of AST 
         | Expression of AST * string | Term of AST * string | Factor of AST * string | Comparison of AST * string | RelOp | Numeral of int | Cmds of AST list 
         | Identifier of string | Variable of string | Exp of AST * string | Tm of AST * string | Fact of AST * string
 
@@ -29,18 +29,18 @@ Block: DeclarationSeq CommandSeq (DeclarationSeq, CommandSeq)
 DeclarationSeq: Declaration DeclarationSeq  (Declaration::DeclarationSeq)
         | ([])
 
-Declaration: VARI VariableList COLS INT SEMIC  (case checklist(VariableList) of SOME alpha => error("\nERROR: '" ^ alpha ^ "' already declared\n") | NONE => add_in_ht(VariableList,"int"); (VariableList, "int"))
-        | VARI VariableList COLS BOOL SEMIC  (case checklist(VariableList) of SOME alpha => error("\nERROR: '" ^ alpha ^ "' already declared\n") | NONE => add_in_ht(VariableList,"bool"); (VariableList, "bool"))
+Declaration: VARI VariableList COLS INT SEMIC  (case check_in_list(VariableList) of SOME alpha => error("\nERROR: '" ^ alpha ^ "' already declared\n") | NONE => add_in_list(VariableList,"int"); (VariableList, "int"))
+        | VARI VariableList COLS BOOL SEMIC  (case check_in_list(VariableList) of SOME alpha => error("\nERROR: '" ^ alpha ^ "' already declared\n") | NONE => add_in_list(VariableList,"bool"); (VariableList, "bool"))
 
 VariableList: Variable COMMA VariableList (Variable::VariableList)
         | Variable (Variable::[])
 
-CommandSeq: LEFTBRACE Cmds RIGHTBRACE  (Cmds)
+CommandSeq: LEFTBRACE Cmds RIGHTBRACE  (SEQ(Cmds))
 
 Cmds: Command SEMIC Cmds (Command::Cmds)
         | ([])
 
-Command: Variable ASSIGN Expression  (case find_in_ht(Variable) of SOME alpha => (if ((#2 Expression) = alpha) then (SET(Variable, (#1 Expression))) else error("\nERROR: variable and expression type does not match\n")) | NONE => error("\nERROR: variable not declared\n"))
+Command: Variable ASSIGN Expression  (case find_in_list(Variable) of SOME alpha => (if ((#2 Expression) = (#1 alpha)) then (SET(Variable, (#1 Expression))) else error("\nERROR: variable and expression type does not match\n")) | NONE => error("\nERROR: variable not declared\n"))
         | READ Variable (READ(Variable))
         | WRITE Expression (WRITE(#1 Expression))
         | IF Expression THEN CommandSeq ELSE CommandSeq ENDIF (if((#2 Expression) = "bool") then ITE((#1 Expression), CommandSeq1, CommandSeq2) else error("\nERROR: bool expected in IF clause\n"))
@@ -69,7 +69,7 @@ Fact: LEFTPAREN Expression RIGHTPAREN (Expression)
         | TT ((BOOL(true),"bool"))
         | FF ((BOOL(false),"bool"))
         | Numeral ((INT(Numeral),"int"))
-        | Variable (case find_in_ht(Variable) of SOME alpha => (IDEN(Variable),alpha) | NONE => error("\nERROR: variable not declared\n"))
+        | Variable (case find_in_list(Variable) of SOME alpha => (IDEN(Variable),(#1 alpha)) | NONE => error("\nERROR: variable not declared\n"))
 
 Comparison: Exp LT Exp (if((#2 Exp1) = (#2 Exp2)) then (LT((#1 Exp1), (#1 Exp2)), "bool") else error ("\nERROR: type mismatch of operands\n"))
         | Exp LEQ Exp (if((#2 Exp1) = (#2 Exp2)) then (LEQ((#1 Exp1), (#1 Exp2)), "bool") else error ("\nERROR: type mismatch of operands\n"))
