@@ -1,15 +1,5 @@
-(* 
-signature AST = 
-sig 
-type AST
-val add_in_ht: string list * string -> unit
-val find_in_ht: string -> string option
-val checklist: string list -> string option
-val error: string -> unit
-end 
-*)
 
-structure AST= 
+structure AST_structure = 
 struct 
 datatype AST = AST of AST 
     | LT  of AST * AST
@@ -54,19 +44,20 @@ datatype AST = AST of AST
     | OR_part_2 
     | NOT_part_2 
     | AND_part_2 
-    | SET_part_2 
-    | READ_part_2 
-    | WRITE_part_2 
+    | SET_part_2 of string
+    | READ_part_2 of string
+    | WRITE_part_2
     | ITE_part_2 
     | WH_part_2 
 	| SEQ_part_2 of AST list
 	| INT_part_2 of int 
-	| BOOL_part_2 of 
+	| BOOL_part_2 of bool
 	| IDEN_part_2 of string
 	| StoAST of string
 	| ItoAST of int
 	| BtoAST of bool
 	| SEQtoAST of AST list
+	| PROG_part_2 of string
 (* val TableSize = 500;
 val HashFactor = 5;
 val HashFunction = fn s =>
@@ -106,7 +97,6 @@ fun error(msg) =
 		OS.Process.exit(OS.Process.success)
 	end 
 end
-
 
 (* fun add_in_ht ([],_) = ()
   | add_in_ht (head::tail,typ) =

@@ -1,5 +1,5 @@
 
-open AST
+open AST_structure
 %%
 %name While
 
