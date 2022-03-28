@@ -66,8 +66,8 @@ struct
 		| exists function (elem::stk) = if (function(elem)) then true else exists function stk 
 	fun all _ [] = true 
 		| all function (elem::stk) = if(function(elem)) then all function stk else false
-	fun list2stack (l) = l
-	fun stack2list (s) = s
+	fun list2stack (lt) = lt
+	fun stack2list (sk) = sk
 	fun toString _ [] = ""
 		| toString function (elem::stk) = let val str1 = function(elem) val str2 = toString function stk in str1 ^ str2 end
 end

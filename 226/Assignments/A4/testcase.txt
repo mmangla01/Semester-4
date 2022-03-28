@@ -2,36 +2,7 @@ program test4 ::
     var A, B, C, D: int;
     var E: bool;
 {
-    A := 1 + (7 * 9 + 6 - 2 * 5 / 2) * (7 + 9 - 3) + 8 % 3;
-    B := + 8 + 9 - + 3 * ~ 2 + (7 + 9 * 3) / 2;
-    C := +1;
-    D := ~ C;
-    A := A + B + C + D;
-    if(A > B) then{
-        while(A > B && B>0) do{
-            A := A - 1;
-            write(A);
-        }
-        endwh;
-    }else{
-        while(A < B) do{
-            A := A + 1;
-            write(A);
-        }
-        endwh;
-    }
-    endif;
-    write(A);
-    write(B);
-    write(C);
-    write(D);
-    A := A + B + C + D;
-    B := B + C + D;
-    C := C + D;
-    D := ~ D;
-    write(A);
-    write(B);
-    write(C);
-    write(D);
-    E := tt > ff;
+    A := 1;
+    B := 4;
+    while (A<B) do {while (A < B + 2) do {A:= A+2;} endwh; } endwh;
 }

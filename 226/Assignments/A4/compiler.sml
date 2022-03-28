@@ -1,4 +1,4 @@
-
+use "AST.sml";
 structure While =
 struct
 exception WhileError;

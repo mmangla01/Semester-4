@@ -4,310 +4,351 @@ Control.Print.stringDepth := 1000; (* and strings *)
 CM.make "while.cm";
 
 use "stack.sml";
-use "AST.sml";
 open AST_structure;
-open FunStack;
 structure Vmc =
 struct
-val mem_size = 1000
-
-fun postfix (LT(a,b)) = postfix(a)@postfix(b)@[LT_part_2]
-	| postfix (LEQ(a,b)) = postfix(a)@postfix(b)@[LEQ_part_2]
-	| postfix (EQ(a,b)) = postfix(a)@postfix(b)@[EQ_part_2]
-	| postfix (GT(a,b)) = postfix(a)@postfix(b)@[GT_part_2]
-	| postfix (NEQ(a,b)) = postfix(a)@postfix(b)@[NEQ_part_2]
-	| postfix (GEQ(a,b)) = postfix(a)@postfix(b)@[GEQ_part_2]
-	| postfix (PLUS(a,b)) = postfix(a)@postfix(b)@[PLUS_part_2]
-	| postfix (MINUS(a,b)) = postfix(a)@postfix(b)@[MINUS_part_2]
-	| postfix (NEGATIVE(a)) = postfix(a)@[NEGATIVE_part_2]
-	| postfix (TIMES(a,b)) = postfix(a)@postfix(b)@[TIMES_part_2]
-	| postfix (DIV(a,b)) = postfix(a)@postfix(b)@[DIV_part_2]
-	| postfix (MOD(a,b)) = postfix(a)@postfix(b)@[MOD_part_2]
-	| postfix (OR(a,b)) = postfix(a)@postfix(b)@[OR_part_2]
-	| postfix (NOT(a)) = postfix(a)@[NOT_part_2]
-	| postfix (AND(a,b)) = postfix(a)@postfix(b)@[AND_part_2]
-	| postfix (SET(a,b)) = postfix(b)@[SET_part_2(a)]
-	| postfix (READ(a)) = [READ_part_2(a)]
-	| postfix (WRITE(a)) = postfix(a)@[WRITE_part_2]
-	| postfix (ITE(a,b,c)) = postfix(a)@postfix(b)@postfix(c)@[ITE_part_2]
-	| postfix (WH(a,b)) = postfix(a)@postfix(b)@[WH_part_2]
-	| postfix (IDEN(a)) = [IDEN_part_2(a)]
-	| postfix (BOOL(a)) = [BOOL_part_2(a)]
-	| postfix (INT(a)) = [INT_part_2(a)]
-	| postfix (SEQ(a)) = let val b = postfix(SEQtoAST(a)) in [SEQ_part_2(b)] end
-	| postfix (PROG(s,(a,b))) = postfix(b)@[PROG_part_2(s)]
-	| postfix (SEQtoAST([])) = []
-	| postfix (SEQtoAST(x::xs)) = postfix(x)@postfix(SEQtoAST(xs))
+val mem_size = 100
+val M: ((string * int) array) ref = ref (Array.array(mem_size,("",0)) )
+fun toString(M) = let fun inttostr ((c,a),b) =  b ^ Int.toString((a)) ^ ", "  val ans = Array.foldl inttostr "" M in ("{ "^ans^"}") end
+fun postfix (AST_structure.LT(a,b)) = postfix(a)@postfix(b)@[AST_structure.LT_part_2]
+	| postfix (AST_structure.LEQ(a,b)) = postfix(a)@postfix(b)@[AST_structure.LEQ_part_2]
+	| postfix (AST_structure.EQ(a,b)) = postfix(a)@postfix(b)@[AST_structure.EQ_part_2]
+	| postfix (AST_structure.GT(a,b)) = postfix(a)@postfix(b)@[AST_structure.GT_part_2]
+	| postfix (AST_structure.NEQ(a,b)) = postfix(a)@postfix(b)@[AST_structure.NEQ_part_2]
+	| postfix (AST_structure.GEQ(a,b)) = postfix(a)@postfix(b)@[AST_structure.GEQ_part_2]
+	| postfix (AST_structure.PLUS(a,b)) = postfix(a)@postfix(b)@[AST_structure.PLUS_part_2]
+	| postfix (AST_structure.MINUS(a,b)) = postfix(a)@postfix(b)@[AST_structure.MINUS_part_2]
+	| postfix (AST_structure.NEGATIVE(a)) = postfix(a)@[AST_structure.NEGATIVE_part_2]
+	| postfix (AST_structure.TIMES(a,b)) = postfix(a)@postfix(b)@[AST_structure.TIMES_part_2]
+	| postfix (AST_structure.DIV(a,b)) = postfix(a)@postfix(b)@[AST_structure.DIV_part_2]
+	| postfix (AST_structure.MOD(a,b)) = postfix(a)@postfix(b)@[AST_structure.MOD_part_2]
+	| postfix (AST_structure.OR(a,b)) = postfix(a)@postfix(b)@[AST_structure.OR_part_2]
+	| postfix (AST_structure.NOT(a)) = postfix(a)@[AST_structure.NOT_part_2]
+	| postfix (AST_structure.AND(a,b)) = postfix(a)@postfix(b)@[AST_structure.AND_part_2]
+	| postfix (AST_structure.SET(a,b)) = [AST_structure.StoAST(a)]@postfix(b)@[AST_structure.SET_part_2]
+	| postfix (AST_structure.READ(a)) = [AST_structure.StoAST(a)]@[AST_structure.READ_part_2]
+	| postfix (AST_structure.WRITE(a)) = postfix(a)@[AST_structure.WRITE_part_2]
+	| postfix (AST_structure.ITE(a,b,c)) = [AST_structure.ENDIF_part_2]@postfix(c)@postfix(b)@postfix(a)@[AST_structure.ITE_part_2]
+	| postfix (AST_structure.WH(a,b)) = let val [AST_structure.SEQ_part_2(c)] = postfix(b) in [ENDIF_part_2]@[AST_structure.SEQ_part_2([])]@[AST_structure.SEQ_part_2(c@[WH(a,b)])]@postfix(a)@[AST_structure.ITE_part_2] end
+	| postfix (AST_structure.IDEN(a)) = [AST_structure.IDEN_part_2(a)]
+	| postfix (AST_structure.BOOL(a)) = [AST_structure.BtoAST(a)]
+	| postfix (AST_structure.INT(a)) = [AST_structure.ItoAST(a)]
+	| postfix (AST_structure.SEQ(a)) = let val b = postfix(AST_structure.SEQtoAST(a)) in [AST_structure.SEQ_part_2(b)] end
+	| postfix (AST_structure.PROG(s,(a,b))) = postfix(b)
+	| postfix (AST_structure.SEQtoAST([])) = []
+	| postfix (AST_structure.SEQtoAST(x::xs)) = postfix(x)@postfix(AST_structure.SEQtoAST(xs))
 	| postfix (_) = []
-fun implement_seq(V,M:(string * int) array,C,[]) = ()
-	| implement_seq(V,M:(string * int) array,C,(x::xs)) = (executor(V,M,C,x); implement_seq(V,M,C,xs))
-	| implement_seq(_,_,_,_) = ()
+(* fun implement_seq(V,C,[]) = ()
+	| implement_seq(V,C,(x::xs)) = (executor([],x,FunStack.top(x)); implement_seq(V,C,xs)) *)
 
-and executor(V,M:(string * int) array,C,LT_part_2) = 
+fun executor(V,C,AST_structure.LT_part_2) = 
     	let 
 			val cstk = FunStack.pop(C) 
 			val stk1 = FunStack.pop(V) 
 			val stk2 = FunStack.pop(stk1) 
-			val ItoAST(a) = FunStack.top(V) 
-			val ItoAST(b) = FunStack.top(stk1) 
-			val temp = if(a < b) then 1 else 0 
-			val ans = ItoAST(temp) 
+            val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0
+			val b = case FunStack.top(stk1) of AST_structure.ItoAST(x) => x | _ => 0
+			val temp = if(b < a) then 1 else 0 
+			val ans = AST_structure.ItoAST(temp) 
 		in 
-            (FunStack.push(ans, stk2), M, cstk)
+            (FunStack.push(ans, stk2),  cstk)
 		end 
-    | executor(V,M:(string * int) array,C,LEQ_part_2) = 
+    | executor(V,C,AST_structure.LEQ_part_2) = 
 		let 
 			val cstk = FunStack.pop(C) 
 			val stk1 = FunStack.pop(V) 
 			val stk2 = FunStack.pop(stk1) 
-			val ItoAST(a) = FunStack.top(V) 
-			val ItoAST(b) = FunStack.top(stk1) 
-			val temp = if(a <= b) then 1 else 0 
-			val ans = ItoAST(temp) 
+			val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0
+			val b = case FunStack.top(stk1) of AST_structure.ItoAST(x) => x | _ => 0
+			val temp = if(b <= a) then 1 else 0 
+			val ans = AST_structure.ItoAST(temp) 
 		in 
-			(FunStack.push(ans, stk2), M, cstk)
+			(FunStack.push(ans, stk2),  cstk)
 		end
-    | executor(V,M:(string * int) array,C,EQ_part_2) = 
+    | executor(V,C,AST_structure.EQ_part_2) = 
 		let 
 			val cstk = FunStack.pop(C) 
 			val stk1 = FunStack.pop(V) 
 			val stk2 = FunStack.pop(stk1) 
-			val ItoAST(a) = FunStack.top(V) 
-			val ItoAST(b) = FunStack.top(stk1) 
+			val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0
+			val b = case FunStack.top(stk1) of AST_structure.ItoAST(x) => x | _ => 0
 			val temp = if(a = b) then 1 else 0 
-			val ans = ItoAST(temp) 
+			val ans = AST_structure.ItoAST(temp) 
 		in 
-			(FunStack.push(ans, stk2), M, cstk)
+			(FunStack.push(ans, stk2),  cstk)
 		end
-    | executor(V,M:(string * int) array,C,GT_part_2) = 
+    | executor(V,C,AST_structure.GT_part_2) = 
 		let 
 			val cstk = FunStack.pop(C) 
 			val stk1 = FunStack.pop(V) 
 			val stk2 = FunStack.pop(stk1) 
-			val ItoAST(a) = FunStack.top(V) 
-			val ItoAST(b) = FunStack.top(stk1) 
-			val temp = if(a > b) then 1 else 0 
-			val ans = ItoAST(temp) 
+			val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0
+			val b = case FunStack.top(stk1) of AST_structure.ItoAST(x) => x | _ => 0
+			val temp = if(b > a) then 1 else 0 
+			val ans = AST_structure.ItoAST(temp) 
 		in 
-			(FunStack.push(ans, stk2), M, cstk)
+			(FunStack.push(ans, stk2),  cstk)
 		end
-    | executor(V,M:(string * int) array,C,GEQ_part_2) = 
+    | executor(V,C,AST_structure.GEQ_part_2) = 
 		let 
 			val cstk = FunStack.pop(C) 
 			val stk1 = FunStack.pop(V) 
 			val stk2 = FunStack.pop(stk1) 
-			val ItoAST(a) = FunStack.top(V) 
-			val ItoAST(b) = FunStack.top(stk1) 
-			val temp = if(a >= b) then 1 else 0 
-			val ans = ItoAST(temp) 
+            
+			val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0
+			val b = case FunStack.top(stk1) of AST_structure.ItoAST(x) => x | _ => 0
+			val temp = if(b >= a) then 1 else 0 
+			val ans = AST_structure.ItoAST(temp) 
 		in 
-			(FunStack.push(ans, stk2), M, cstk)
+			(FunStack.push(ans, stk2),  cstk)
 		end
-    | executor(V,M:(string * int) array,C,NEQ_part_2) = 
+    | executor(V,C,AST_structure.NEQ_part_2) = 
 		let 
 			val cstk = FunStack.pop(C) 
 			val stk1 = FunStack.pop(V) 
 			val stk2 = FunStack.pop(stk1) 
-			val ItoAST(a) = FunStack.top(V) 
-			val ItoAST(b) = FunStack.top(stk1) 
+            
+			val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0
+			val b = case FunStack.top(stk1) of AST_structure.ItoAST(x) => x | _ => 0
 			val temp = if(a <> b) then 1 else 0 
-			val ans = ItoAST(temp) 
+			val ans = AST_structure.ItoAST(temp) 
 		in 
-			(FunStack.push(ans, stk2), M, cstk)
+			(FunStack.push(ans, stk2),  cstk)
 		end
-    | executor(V,M:(string * int) array,C,PLUS_part_2) = 
+    | executor(V,C,AST_structure.PLUS_part_2) = 
 		let 
 			val cstk = FunStack.pop(C) 
 			val stk1 = FunStack.pop(V) 
 			val stk2 = FunStack.pop(stk1) 
-			val ItoAST(a) = FunStack.top(V) 
-			val ItoAST(b) = FunStack.top(stk1) 
-			val ans = ItoAST(a + b) 
+            
+			val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0
+			val b = case FunStack.top(stk1) of AST_structure.ItoAST(x) => x | _ => 0
+			val ans = AST_structure.ItoAST(a + b) 
         in 
-            (FunStack.push(ans, stk2), M, cstk)
+            (FunStack.push(ans, stk2),  cstk)
         end
-    | executor(V,M:(string * int) array,C,MINUS_part_2) = 
+    | executor(V,C,AST_structure.MINUS_part_2) = 
 		let 
 			val cstk = FunStack.pop(C) 
 			val stk1 = FunStack.pop(V) 
 			val stk2 = FunStack.pop(stk1) 
-			val ItoAST(a) = FunStack.top(V) 
-			val ItoAST(b) = FunStack.top(stk1) 
-			val ans = ItoAST(a - b) 
+            
+			val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0
+			val b = case FunStack.top(stk1) of AST_structure.ItoAST(x) => x | _ => 0
+			val ans = AST_structure.ItoAST(b - a) 
 		in 
-			(FunStack.push(ans, stk2), M, cstk)
+			(FunStack.push(ans, stk2),  cstk)
 		end
-    | executor(V,M:(string * int) array,C,NEGATIVE_part_2) = 
+    | executor(V,C,AST_structure.NEGATIVE(g)) = 
 		let 
 			val cstk = FunStack.pop(C) 
 			val stk1 = FunStack.pop(V) 
-			val ItoAST(a) = FunStack.top(V) 
+            
+			val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0
             val b = (0-a)
-			val ans = ItoAST(b) 
+			val ans = AST_structure.ItoAST(b) 
 		in 
-			(FunStack.push(ans, stk1), M, cstk)
+			(FunStack.push(ans, stk1),  cstk)
 		end
-    | executor(V,M:(string * int) array,C,TIMES_part_2) = 
+    | executor(V,C,AST_structure.TIMES_part_2) = 
 		let 
 			val cstk = FunStack.pop(C) 
 			val stk1 = FunStack.pop(V) 
 			val stk2 = FunStack.pop(stk1) 
-			val ItoAST(a) = FunStack.top(V) 
-			val ItoAST(b) = FunStack.top(stk1) 
-			val ans = ItoAST(a * b) 
+            
+			val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0
+			val b = case FunStack.top(stk1) of AST_structure.ItoAST(x) => x | _ => 0
+			val ans = AST_structure.ItoAST(a * b) 
 		in 
-			(FunStack.push(ans, stk2), M, cstk)
+			(FunStack.push(ans, stk2),  cstk)
 		end
-    | executor(V,M:(string * int) array,C,DIV_part_2) = 
+    | executor(V,C,AST_structure.DIV_part_2) = 
 		let 
 			val cstk = FunStack.pop(C) 
 			val stk1 = FunStack.pop(V) 
 			val stk2 = FunStack.pop(stk1) 
-			val ItoAST(a) = FunStack.top(V) 
-			val ItoAST(b) = FunStack.top(stk1) 
-			val ans = ItoAST(a div b) 
+            
+			val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0
+			val b = case FunStack.top(stk1) of AST_structure.ItoAST(x) => x | _ => 0
+			val ans = AST_structure.ItoAST(b div a) 
 		in 
-			(FunStack.push(ans, stk2), M, cstk)
+			(FunStack.push(ans, stk2),  cstk)
 		end
-    | executor(V,M:(string * int) array,C,MOD_part_2) = 
+    | executor(V,C,AST_structure.MOD_part_2) = 
 		let 
 			val cstk = FunStack.pop(C) 
 			val stk1 = FunStack.pop(V) 
 			val stk2 = FunStack.pop(stk1) 
-			val ItoAST(a) = FunStack.top(V) 
-			val ItoAST(b) = FunStack.top(stk1) 
-			val ans = ItoAST(a mod b) 
+            
+			val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0
+			val b = case FunStack.top(stk1) of AST_structure.ItoAST(x) => x | _ => 0
+			val ans = AST_structure.ItoAST(b mod a) 
 		in 
-			(FunStack.push(ans, stk2), M, cstk)
+			(FunStack.push(ans, stk2),  cstk)
 		end
-	| executor(V,M:(string * int) array,C,NEGATIVE_part_2) = 
+	| executor(V,C,AST_structure.NEGATIVE_part_2) = 
 		let 
 			val cstk = FunStack.pop(C) 
 			val stk1 = FunStack.pop(V) 
 			val stk2 = FunStack.pop(stk1) 
-			val ItoAST(a) = FunStack.top(V) 
-			val ItoAST(b) = FunStack.top(stk1) 
-			val ans = ItoAST(a mod b) 
+            
+			val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0
+			val ans = AST_structure.ItoAST(0 - a) 
 		in 
-			(FunStack.push(ans, stk2), M, cstk)
+			(FunStack.push(ans, stk1),  cstk)
 		end
-    | executor(V,M:(string * int) array,C,OR_part_2) = 
+    | executor(V,C,AST_structure.OR_part_2) = 
 		let 
 			val cstk = FunStack.pop(C) 
 			val stk1 = FunStack.pop(V) 
 			val stk2 = FunStack.pop(stk1) 
-			val ItoAST(a) = FunStack.top(V) 
-			val ItoAST(b) = FunStack.top(stk1) 
+            
+			val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0
+			val b = case FunStack.top(stk1) of AST_structure.ItoAST(x) => x | _ => 0
 			val temp = if(a = 1 orelse b = 1) then 1 else 0 
-			val ans = ItoAST(temp) 
+			val ans = AST_structure.ItoAST(temp) 
 		in 
-			(FunStack.push(ans, stk2), M, cstk)
+			(FunStack.push(ans, stk2),  cstk)
 		end
-    | executor(V,M:(string * int) array,C,NOT_part_2) = 
+    | executor(V,C,AST_structure.NOT_part_2) = 
 		let 
 			val cstk = FunStack.pop(C) 
 			val stk1 = FunStack.pop(V) 
-			val ItoAST(a) = FunStack.top(V) val temp = if(a = 1) then 0 else 1 
-			val ans = ItoAST(temp) 
+            
+			val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0val temp = if(a = 1) then 0 else 1 
+			val ans = AST_structure.ItoAST(temp) 
         in 
-            (FunStack.push(ans, stk1), M, cstk)
+            (FunStack.push(ans, stk1),  cstk)
         end
-    | executor(V,M:(string * int) array,C,AND_part_2) = 
+    | executor(V,C,AST_structure.AND_part_2) = 
 		let 
 			val cstk = FunStack.pop(C) 
 			val stk1 = FunStack.pop(V) 
 			val stk2 = FunStack.pop(stk1) 
-			val ItoAST(a) = FunStack.top(V) 
-			val ItoAST(b) = FunStack.top(stk1) 
+            
+			val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0
+			val b = case FunStack.top(stk1) of AST_structure.ItoAST(x) => x | _ => 0
 			val temp = if(a = 1 andalso b = 1) then 1 else 0 
-			val ans = ItoAST(temp) 
+			val ans = AST_structure.ItoAST(temp) 
 		in 
-			(FunStack.push(ans, stk2), M, cstk)
+			(FunStack.push(ans, stk2),  cstk)
 		end
-    | executor(V,M:(string * int) array,C,SEQ_part_2(a)) = 
+    | executor(V,C,AST_structure.SEQ_part_2([])) = (V,FunStack.pop(C))
+    | executor(V,C,AST_structure.SEQ_part_2(a)) = 
 		let 
 			val cstk = FunStack.pop(C) 
+            val dummy = FunStack.list2stack(a)
+            (* val (al,bl) = executor([],dummy,FunStack.top(dummy))
+            val temp = rules(al,bl) *)
+            val temp = rules([], dummy)
 		in 
-            executor(V,M,cstk,FunStack.top(cstk))
+            (V,cstk)
 		end 
-    | executor(V,M:(string * int) array,C,INT_part_2(x)) = 
+    | executor(V,C,AST_structure.ItoAST(a)) = 
 		let 
-			val cstk = FunStack.pop(C)  
-			val ans = ItoAST(x)
+			val cstk = FunStack.pop(C)
+			val ans = AST_structure.ItoAST(a)
 		in 
-			(FunStack.push(ans, V), M, cstk) 
+			(FunStack.push(ans, V),  cstk) 
 		end 
-    | executor(V,M:(string * int) array,C,BOOL_part_2(x)) = 
+    | executor(V,C,AST_structure.BtoAST(x)) = 
 		let 
 			val cstk = FunStack.pop(C)  
 			val ans = if(x) then 1 else 0
 		in 
-            (FunStack.push(ItoAST(ans), V), M, cstk)
+            (FunStack.push(AST_structure.ItoAST(ans), V),  cstk)
 		end
-    | executor(V,M,C,IDEN_part_2(a)) = 
+    | executor(V,C,AST_structure.IDEN_part_2(a)) = 
 		let 
 			val cstk = FunStack.pop(C)  
             fun val_in_mem(variable, c:(string * int) array) = let val b = AST_structure.find_in_list(variable) in case b of SOME (x,y:int) => Array.sub(c, y) | NONE => ("",0) end
-			val ans = val_in_mem(a, M)
+			val ans = val_in_mem(a, !M)
 		in 
-			(FunStack.push(ItoAST(#2 ans), V), M, cstk)
+			(FunStack.push(AST_structure.ItoAST(#2 ans), V),  cstk)
 		end
-    | executor(V,M:(string * int) array,C,SET_part_2(a)) = 
+    | executor(V,C,AST_structure.SET_part_2) = 
 		let 
 			val cstk = FunStack.pop(C)
-			val stk1 = FunStack.pop(V) 
-			val b = FunStack.top(V) 
-            fun add_in_mem(variable, value) = let val a =  AST_structure.find_in_list (variable) in case a of SOME (x,y) => Array.update(M, y, (variable, value)) | NONE => () end
+			val stk1 = FunStack.pop(V)
+            val stk2 = FunStack.pop(stk1)
+            val a = case FunStack.top(stk1) of StoAST(x) => x | _ => ""
+            val b = case FunStack.top(V) of ItoAST(x) => x | _ => 0
+            fun add_in_mem(variable, value) = let val a = AST_structure.find_in_list (variable) in case a of SOME (x,y) => Array.update(!M, y, (variable, value)) | NONE => () end
+            val _ = add_in_mem(a, b)
 		in 
             (* add(a,b) *)
-            (stk1, M, cstk) 
+            (stk2,  cstk)
 		end
-    | executor(V,M:(string * int) array,C,READ_part_2(a)) = 
+    | executor(V,C,AST_structure.READ_part_2) = 
 		let 
-			val cstk = FunStack.pop(C)  
+			val cstk = FunStack.pop(C) 
+            val stk1 = FunStack.pop(V)
+            val a = case FunStack.top(V) of AST_structure.StoAST(x) => x | _ => "" 
 			val ans = valOf(Int.fromString(valOf(TextIO.inputLine(TextIO.stdIn))))
-            fun add_in_mem(variable, value) = let val a =  AST_structure.find_in_list (variable) in case a of SOME (x,y) => Array.update(M, y, (variable, value)) | NONE => () end
+            fun add_in_mem(variable, value) = let val a =  AST_structure.find_in_list (variable) in case a of SOME (x,y) => Array.update(!M, y, (variable, value)) | NONE => () end
             val _ = add_in_mem(a, ans)
 		in 
-			(V, M, cstk)
+			(V,  cstk)
 		end
-    | executor(V,M:(string * int) array,C,WRITE_part_2) = 
+    | executor(V,C,AST_structure.WRITE_part_2) = 
 		let 
 			val cstk = FunStack.pop(C) 
 			val stk1 = FunStack.pop(V) 
-			val ItoAST(a) = FunStack.top(V) 
-			val ans = print(Int.toString(a)^"\n") 
+			val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0
+			val _ = print(Int.toString(a)^"\n")
 		in 
-			(stk1, M, cstk)
+			(stk1,cstk)
 		end
-    | executor(V,M:(string * int) array,C,ITE_part_2) = 
+    | executor(V,C,AST_structure.ITE_part_2) = 
 		let 
-			val cstk = FunStack.pop(C) 
-			val stk1 = FunStack.pop(V) 
-			val stk2 = FunStack.pop(stk1) 
+			val bool = FunStack.top(V);
+			val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0
+			val cstk = FunStack.pop(C)
+			val stk1 = FunStack.pop(V)
+			val stk2 = FunStack.pop(stk1)
 			val stk3 = FunStack.pop(stk2)
-			val ItoAST(a) = FunStack.top(V) 
-			val SEQ(b) = FunStack.top(stk1) 
-			val SEQ(c) = FunStack.top(stk2)
-			val ans = if(a=1) then implement_seq(V,M,C,b) else implement_seq(V,M,C,c)
+            val b = case FunStack.top(stk1) of SEQ_part_2(x) => FunStack.list2stack(x) | _ => []
+            val c = case FunStack.top(stk2) of SEQ_part_2(x) => FunStack.list2stack(x) | _ => []
+            (* val _ = print(Int.toString(FunStack.depth(V)))
+            val _ = print(Int.toString(FunStack.depth(C))) *)
+			val ans = if(a=1) then FunStack.top(stk1) else FunStack.top(stk2)
+            val cstk1 = FunStack.push(ans,cstk)
+			(* val s = rules(ans); *)
+            (* val _ = print(s); *)
 		in 
-			(stk3, M, cstk) 
+			(stk3, cstk1)
 		end
-    | executor(V,M:(string * int) array,C,WH_part_2) = 
+    (* | executor(V,M:(string * int) array,C,AST_structure.WH_part_2) = 
 		let 
 			val cstk = FunStack.pop(C) 
 			val stk1 = FunStack.pop(V) 
 			val stk2 = FunStack.pop(stk1) 
-			val ItoAST(a) = FunStack.top(V) 
-			val ItoAST(b) = FunStack.top(stk1) 
-			val ans = BtoAST(a < b) 
+            
+			val a = case FunStack.top(V) of AST_structure.ItoAST(x) => x | _ => 0
+			val b = case FunStack.top(stk1) of AST_structure.ItoAST(x) => x | _ => 0
+			val ans = AST_structure.BtoAST(a < b) 
 		in 
 			(FunStack.push(ans, stk2), M, cstk)
+		end *)
+    | executor (V,C,AST_structure.StoAST(a)) = (FunStack.push(StoAST(a), V), FunStack.pop(C)) 
+	| executor (V,C,AST_structure.ENDIF_part_2) = 
+		let
+			val a = FunStack.pop(C)
+			val b = FunStack.pop(a)
+			val c = FunStack.pop(b)
+			val d = FunStack.push(FunStack.top(a), V)
+			val e = FunStack.push(FunStack.top(b), d)
+		in
+			(e, c)
 		end
+        
+	| executor (V,C,AST_structure.WH(a,b)) = let val c = postfix(AST_structure.WH(a,b)) in executor(V,c@FunStack.pop(C), FunStack.top(c@FunStack.pop(C))) end
+	(* | executor (V,C,AST_structure.WH(a,b)) = let val c = postfix(AST.structure.WH(a,b)) in executor(V,FunStack.list2stack(c),FunStack.top(FunStack.list2stack(c))) end *)
+    | executor (V,C,_) = ((V,C))
 
 
-fun rules(V,M,C) = if (FunStack.depth(C)=0) then ()
-    else let val a = FunStack.top(C) val (v,m,c) = executor(V,M,C,a) in rules(v,m,c) end
+and rules(V,C) = if (FunStack.depth(C)=0) then (toString(!M))
+    else let val a = FunStack.top(C) val (v,c) = executor(V,C,a) in rules(v,c) end
 
 
 fun execute(file) = 
@@ -315,14 +356,15 @@ fun execute(file) =
         val VV = FunStack.create
         val AST_structure.PROG(a,(b,c)) = While.compile(file)
         val x = postfix(c)
-        val CC = list2stack(x)
-        val MM = Array.array (mem_size,("",0))
+        val CC = FunStack.list2stack(x)
     in 
-        rules(VV,MM,CC)
+        rules(VV,CC)
     end
 
-fun toString (M) = let fun inttostr (a,b) = b ^ Int.toString(a) ^ ", " val ans = Array.foldr inttostr "" M in print("{ "^ans^"}") end
-end 
 
-val a = Vmc.execute "testcase.txt";
+end 
+(* val a = While.compile("testcase.txt");
+val b = Vmc.postfix(a);
+val memory = Vmc.rules([],b); *)
+val memory = Vmc.execute("testcase.txt");
 val exit : unit = OS.Process.exit(OS.Process.success);
